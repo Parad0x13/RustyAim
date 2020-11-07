@@ -8,14 +8,92 @@ from pynput import mouse
 # We need this as otherwise there would be a delay during any mouse movements
 import threading
 
+from time import sleep
+
+isActive = False
+
 def adjustRecoil(xDelta, yDelta):
     th = threading.Thread(target = lambda x, y: system_mouse._os_mouse.move_relative(x, y), args = (xDelta, yDelta,))
     th.start()
+
+import random
+def test():
+    global adjusting
+    global left_pressed
+    global right_pressed
+
+    adjusting = True
+
+    minimum = 0.175
+    maximum = 0.3
+    for n in range(6):
+        system_mouse._os_mouse.press("left")
+        system_mouse._os_mouse.release("left")
+        system_mouse._os_mouse.move_relative(0, 28)
+        val = random.uniform(minimum, maximum)
+        print(val)
+        sleep(val)
+
+    adjusting = False
+
+def poo():
+    global adjusting
+    global left_pressed
+
+    adjusting = True
+
+    minimum = 0.175
+    maximum = 0.4
+
+    while left_pressed:
+        system_mouse._os_mouse.press("left")
+        system_mouse._os_mouse.release("left")
+        system_mouse._os_mouse.move_relative(0, 28)
+        val = random.uniform(minimum, maximum)
+        print(val)
+        sleep(val)
+
+    adjusting = False
 
 adjusting = False
 left_pressed = False
 right_pressed = False
 def on_click(x, y, button, pressed):
+    global left_pressed
+    global right_pressed
+
+    global adjusting
+    global isActive
+    print("Called: {}, {}".format(button, pressed))
+
+    if not isActive: return
+
+    #if adjusting: return
+
+    if button == mouse.Button.left and not adjusting:
+        print("Left")
+        left_pressed = pressed
+
+    if button == mouse.Button.right and not adjusting:
+        print("Right")
+        right_pressed = pressed
+
+    print(left_pressed, right_pressed)
+
+    # TESTING
+    #if pressed == True and not adjusting:
+    #if left_pressed and not adjusting:
+    if left_pressed and right_pressed and not adjusting:
+        print("Attempting")
+
+        #th = threading.Thread(target = test)
+        #th.start()
+
+        th = threading.Thread(target = poo)
+        th.start()
+    # TESTING
+
+    """
     global adjusting
     global left_pressed
     global right_pressed
@@ -28,26 +106,52 @@ def on_click(x, y, button, pressed):
             adjusting = True
             print("Adjusting Recoil")
 
-            adjustRecoil(0, 86)
+            # This one is weird... doesn't act like the revolver at all
+            adjustRecoil(0, 30)    # Revolver
+
+            #adjustRecoil(0, 86)    # Python
 
             adjusting = False
+    """
 
-    if button == mouse.Button.right:
-        print("Right")
-        right_pressed = pressed
+    #if button == mouse.Button.right:
+    #    print("Right")
+    #    right_pressed = pressed
 
 def on_scroll(x, y, dx, dy):
+    global isActive
+    if not isActive: return
+
     print("scrolled")
 
 from pynput import keyboard
 
 def on_press(key):
-    print("pressed")
-    mouse_listener.stop()
-    return False
+    global isActive
+
+    try:
+        if key == key.f5:
+            if isActive == True:
+                isActive = False
+                print("RustyAim Disabled")
+            else:
+                isActive = True
+                print("RustyAim Enabled")
+    except: pass
+
+    if not isActive: return
+
+    try:
+        pass
+        #if key.char == ("q"):
+    except: pass
+
+    #mouse_listener.stop()
+    #return False
 
 def on_release(key):
-    print("released")
+    global isActive
+    if not isActive: return
 
 # Setup the listener threads
 keyboard_listener = keyboard.Listener(on_press = on_press, on_release = on_release)
