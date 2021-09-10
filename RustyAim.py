@@ -12,8 +12,12 @@ from time import sleep
 
 isActive = False
 
-def adjustRecoil(xDelta, yDelta):
-    th = threading.Thread(target = lambda x, y: system_mouse._os_mouse.move_relative(x, y), args = (xDelta, yDelta,))
+def testing(x, y, delay):
+    sleep(delay)
+    system_mouse._os_mouse.move_relative(x, y)
+
+def adjustRecoil(xDelta, yDelta, delay = 0):
+    th = threading.Thread(target = lambda x, y, d: testing(x, y, d), args = (xDelta, yDelta, delay))
     th.start()
 
 import random
@@ -66,31 +70,43 @@ def on_click(x, y, button, pressed):
     global isActive
     print("Called: {}, {}".format(button, pressed))
 
-    if not isActive: return
+    if button == mouse.Button.left: left_pressed = pressed
+    if button == mouse.Button.right: right_pressed = pressed
+
+    #if not isActive: return
+
+    # TESTING
+    if right_pressed and left_pressed:
+        #print("Testing")
+        for d in range(20):
+            delta = 3.7/30.0    # ~1.233333 seconds I think?
+            adjustRecoil(0, 10, delay = d * delta)
+        #print("Done")
+    # TESTING
 
     #if adjusting: return
 
-    if button == mouse.Button.left and not adjusting:
-        print("Left")
-        left_pressed = pressed
+    #if button == mouse.Button.left and not adjusting:
+    #    print("Left")
+    #    left_pressed = pressed
 
-    if button == mouse.Button.right and not adjusting:
-        print("Right")
-        right_pressed = pressed
+    #if button == mouse.Button.right and not adjusting:
+    #    print("Right")
+    #    right_pressed = pressed
 
-    print(left_pressed, right_pressed)
+    #print(left_pressed, right_pressed)
 
     # TESTING
     #if pressed == True and not adjusting:
     #if left_pressed and not adjusting:
-    if left_pressed and right_pressed and not adjusting:
-        print("Attempting")
+    #if left_pressed and right_pressed and not adjusting:
+    #    print("Attempting")
 
         #th = threading.Thread(target = test)
         #th.start()
 
-        th = threading.Thread(target = poo)
-        th.start()
+    #    th = threading.Thread(target = poo)
+    #    th.start()
     # TESTING
 
     """
